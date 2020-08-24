@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Apples to Apples!</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <style>
+        .card {
+            width:10%;
+            border: 1px solid black;
+            height: 200px;
+            
+        }
+        .red-card {
+            background-color: darkred;
+        }
+        .green-card {
+            background-color: darkgreen;
+            text-align: center;
+        }
+        .card-title {
+            vertical-align:top;
+            color: white;
+            
+        }
+        .card-description {
+            vertical-align: bottom;
+            color: lightgrey;
+        }
+        table {
+            width:100%;
+        }
+        th, td {
+            width: 10%;
+            padding: 15px;
+            vertical-align: text-top;
+        }
+        .picker {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <table id=hand>
+        <caption>Your Hand</caption>
+        <tr>
+        <td class="card red-card">
+            <div id="title1" class="card-title"></div>
+            <div id="desc1" class="card-description"></div>
+        </td>
+        <td class="card red-card">
+            <div id="title2" class="card-title"></div>
+            <div id="desc2" class="card-description"></div>
+        </td>
+        <td class="card red-card">
+            <div id="title3" class="card-title"></div>
+            <div id="desc3" class="card-description"></div>
+        </td>
+        <td class="card red-card">
+            <div id="title4" class="card-title"></div>
+            <div id="desc4" class="card-description"></div>
+        </td>
+        <td class="card red-card">
+            <div id="title5" class="card-title"></div>
+            <div id="desc5" class="card-description"></div>
+        </td>
+        <td class="card red-card">
+            <div id="title6" class="card-title"></div>
+            <div id="desc6" class="card-description"></div>
+        </td>
+        <td class="card red-card">
+            <div id="title7" class="card-title"></div>
+            <div id="desc7" class="card-description"></div>
+        </td>
+        </tr>
+        <tr>
+            <td class="picker">
+                <button id="1" class="choose" onclick="cardPicked(this)">Pick This Card</button>
+            </td>
+            <td class="picker">
+                <button id="2" class="choose" onclick="cardPicked(this)">Pick This Card</button>
+            </td>
+            <td class="picker">
+                <button id="3" class="choose" onclick="cardPicked(this)">Pick This Card</button>
+            </td>
+            <td class="picker">
+                <button id="4" class="choose" onclick="cardPicked(this)">Pick This Card</button>
+            </td>
+            <td class="picker">
+                <button id="5" class="choose" onclick="cardPicked(this)">Pick This Card</button>
+            </td>
+            <td class="picker">
+                <button id="6" class="choose" onclick="cardPicked(this)">Pick This Card</button>
+            </td>
+            <td class="picker">
+                <button id="7" class="choose" onclick="cardPicked(this)">Pick This Card</button>
+            </td>
+        </tr>
+    </table>
+    <table>
+        <caption>Green Card</caption>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="card green-card">
+                <div id="titlegreen" class="card-title"></div>
+                <div id="descgreen" class="card-description"></div>
+            </td> 
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+    <p id="status">Please pick a card!</p>
+    <script>
+        function cardPicked(obj) {
+            var xhttp = new XMLHttpRequest();
+            disablePicking();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    obj.innerHTML = "Picked!"
+                    document.getElementById('status').textContent = "Waiting for other players..."
+                    var newCard = new XMLHttpRequest();
+                    newCard.onreadystatechange = function() {
+                        if (this.readyState == 4 && this.status == 200) {
+                            var jsonResponse = JSON.parse(this.responseText);
+                            document.getElementById("title" + obj.id).textContent = jsonResponse.redname
+                            document.getElementById("desc" + obj.id).textContent = jsonResponse.reddesc
+                            document.getElementById("titlegreen").textContent = jsonResponse.greenname
+                            document.getElementById("descgreen").textContent = jsonResponse.greendesc
+                            document.getElementById('status').textContent = "Please pick a card!"
+                            enablePicking()
+                        }
+                    }
+                    newCard.open("GET", "/new_card/" + JSON.parse(this.responseText).roundnum, true);
+                    newCard.send();
+                }
+            };
+            var card_name = document.getElementById("title" + obj.id).textContent
+            xhttp.open("GET", "/card_picked/" + card_name, true);
+            xhttp.send();
+        }
+        function disablePicking() {
+            var btns = document.getElementsByClassName('choose');
+            l = btns.length;
+            for (i = 0; i < l; i++) {
+                btns[i].disabled = true
+            };
+        }
+        function enablePicking() {
+            var btns = document.getElementsByClassName('choose');
+            l = btns.length;
+            for (i = 0; i < l; i++) {
+                btns[i].disabled = false
+                btns[i].innerHTML = "Pick This Card"
+            };
+        }
+    </script>
+</body>
+</html>
